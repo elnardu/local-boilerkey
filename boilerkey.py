@@ -1,7 +1,7 @@
+import base64
 import json
 import os
 import sys
-import base64
 
 try:
     import requests
@@ -18,10 +18,12 @@ COUNTER_PATH = os.path.dirname(os.path.realpath(__file__)) + '/counter.json'
 
 __license__ = "WTFPL"
 __author__ = "Russian election hackers"
-__credits__ = ['ITAP', 'Mitch Daniels']
+__credits__ = ['ITaP', 'Mitch Daniels']
+
 
 def getActivationData(code):
     print("Requesting activation data...")
+
     HEADERS = {
         "User-Agent": "okhttp/3.11.0",
     }
@@ -40,11 +42,17 @@ def getActivationData(code):
         "customer_protocol": 1
     }
 
+    ENDPOINT = "https://api-1b9bef70.duosecurity.com/push/v2/activation/{}"
+
     res = requests.post(
-        "https://api-1b9bef70.duosecurity.com/push/v2/activation/{}".format(code), headers=HEADERS, params=PARAMS)
+        ENDPOINT.format(code),
+        headers=HEADERS,
+        params=PARAMS
+    )
 
     if res.json().get('code') == 40403:
-        print("Invalid activation code. Please request a new link in BoilerKey settings.")
+        print("Invalid activation code."
+              "Please request a new link in BoilerKey settings.")
         sys.exit(1)
 
     if not res.json()['response']:
@@ -100,17 +108,20 @@ def generatePassword():
         password = "{},{}".format(config.get('pin'), hotpPassword)
     else:
         password = hotpPassword
-    
+
     setCounter(counter + 1)
 
     return password
 
 
 def askForInfo():
-    print("Hello there.")
-    print("1. Please go to the BoilerKey settings (https://purdue.edu/boilerkey) and click on 'Set up a new Duo Mobile BoilerKey'")
-    print("2. Follow the process until you see the qr code")
-    print("3. Paste the link (https://m-1b9bef70.duosecurity.com/activate/XXXXXXXXXXX) under the qr code right here and press Enter")
+    print("""Hello there.
+1. Please go to the BoilerKey settings (https://purdue.edu/boilerkey)
+   and click on 'Set up a new Duo Mobile BoilerKey'
+2. Follow the process until you see the qr code
+3. Paste the link (https://m-1b9bef70.duosecurity.com/activate/XXXXXXXXXXX)
+   under the qr code right here and press Enter""")
+
     valid = False
     while not valid:
         link = input()
@@ -118,7 +129,9 @@ def askForInfo():
 
         if not valid:
             print("Invalid link. Please try again")
-    print("4. (Optional) In order to generate full password (pin,XXXXXX), script needs your pin. You can leave this empty.")
+
+    print("""4. (Optional) In order to generate full password (pin,XXXXXX),
+   script needs your pin. You can leave this empty.""")
 
     pin = input()
     if len(pin) != 4:

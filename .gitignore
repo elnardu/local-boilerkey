@@ -1,2 +1,6 @@
 config.json
 counter.json
+qrcode.svg
+
+__pycache__/
+.DS_Store

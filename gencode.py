@@ -1,6 +1,5 @@
 import json
 import os
-import pyqrcode
 import base64
 import sys
 
@@ -22,7 +21,7 @@ print(url)
 try:
     import pyqrcode
 except ImportError:
-    print("pyqrcode is not found")
+    print("pyqrcode is not found. Unable to generate the qr code")
     print("pip3 install pyqrcode")
     sys.exit(1)
 

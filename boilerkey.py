@@ -11,22 +11,20 @@ except ImportError:
     print("Please run 'pip3 install pyotp requests'")
     sys.exit(1)
 
-CONFIG_PATH = os.path.dirname(os.path.realpath(__file__)) + '/config.json'
-COUNTER_PATH = os.path.dirname(os.path.realpath(__file__)) + '/counter.json'
+CONFIG_PATH = os.path.dirname(os.path.realpath(__file__)) + "/config.json"
+COUNTER_PATH = os.path.dirname(os.path.realpath(__file__)) + "/counter.json"
 
 # DO NOT LOSE YOUR WAAAAAAY!
 
 __license__ = "WTFPL"
 __author__ = "Russian election hackers"
-__credits__ = ['ITaP', 'Mitch Daniels']
+__credits__ = ["ITaP", "Mitch Daniels"]
 
 
 def getActivationData(code):
     print("Requesting activation data...")
 
-    HEADERS = {
-        "User-Agent": "okhttp/3.11.0",
-    }
+    HEADERS = {"User-Agent": "okhttp/3.11.0"}
 
     PARAMS = {
         "app_id": "com.duosecurity.duomobile.app.DMApplication",
@@ -39,34 +37,32 @@ def getActivationData(code):
         "jailbroken": False,
         "version": "6.0",
         "language": "EN",
-        "customer_protocol": 1
+        "customer_protocol": 1,
     }
 
     ENDPOINT = "https://api-1b9bef70.duosecurity.com/push/v2/activation/{}"
 
-    res = requests.post(
-        ENDPOINT.format(code),
-        headers=HEADERS,
-        params=PARAMS
-    )
+    res = requests.post(ENDPOINT.format(code), headers=HEADERS, params=PARAMS)
 
-    if res.json().get('code') == 40403:
-        print("Invalid activation code."
-              "Please request a new link in BoilerKey settings.")
+    if res.json().get("code") == 40403:
+        print(
+            "Invalid activation code."
+            "Please request a new link in BoilerKey settings."
+        )
         sys.exit(1)
 
-    if not res.json()['response']:
+    if not res.json()["response"]:
         print("Unknown error")
         print(res.json())
         sys.exit(1)
 
-    return res.json()['response']
+    return res.json()["response"]
 
 
 def validateLink(link):
     try:
         assert "m-1b9bef70.duosecurity.com" in link
-        code = link.split('/')[-1]
+        code = link.split("/")[-1]
         assert len(code) == 20
         return True, code
     except Exception:
@@ -74,38 +70,36 @@ def validateLink(link):
 
 
 def createConfig(activationData):
-    with open(CONFIG_PATH, 'w') as f:
+    with open(CONFIG_PATH, "w") as f:
         json.dump(activationData, f, indent=2)
     print("Activation data saved!")
 
 
 def getConfig():
-    with open(CONFIG_PATH, 'r') as f:
+    with open(CONFIG_PATH, "r") as f:
         return json.load(f)
 
 
 def setCounter(number):
-    with open(COUNTER_PATH, 'w') as f:
-        json.dump({
-            "counter": number
-        }, f, indent=2)
+    with open(COUNTER_PATH, "w") as f:
+        json.dump({"counter": number}, f, indent=2)
 
 
 def getCounter():
-    with open(COUNTER_PATH, 'r') as f:
-        return json.load(f)['counter']
+    with open(COUNTER_PATH, "r") as f:
+        return json.load(f)["counter"]
 
 
 def generatePassword():
     config = getConfig()
     counter = getCounter()
 
-    hotp = pyotp.HOTP(base64.b32encode(config['hotp_secret'].encode()))
+    hotp = pyotp.HOTP(base64.b32encode(config["hotp_secret"].encode()))
 
     hotpPassword = hotp.at(counter)
 
-    if config.get('pin'):
-        password = "{},{}".format(config.get('pin'), hotpPassword)
+    if config.get("pin"):
+        password = "{},{}".format(config.get("pin"), hotpPassword)
     else:
         password = hotpPassword
 
@@ -115,12 +109,14 @@ def generatePassword():
 
 
 def askForInfo():
-    print("""Hello there.
+    print(
+        """Hello there.
 1. Please go to the BoilerKey settings (https://purdue.edu/boilerkey)
    and click on 'Set up a new Duo Mobile BoilerKey'
 2. Follow the process until you see the qr code
 3. Paste the link (https://m-1b9bef70.duosecurity.com/activate/XXXXXXXXXXX)
-   under the qr code right here and press Enter""")
+   under the qr code right here and press Enter"""
+    )
 
     valid = False
     while not valid:
@@ -130,8 +126,10 @@ def askForInfo():
         if not valid:
             print("Invalid link. Please try again")
 
-    print("""4. (Optional) In order to generate full password (pin,XXXXXX),
-   script needs your pin. You can leave this empty.""")
+    print(
+        """4. (Optional) In order to generate full password (pin,XXXXXX),
+   script needs your pin. You can leave this empty."""
+    )
 
     pin = input()
     if len(pin) != 4:
@@ -139,7 +137,7 @@ def askForInfo():
         print("Invalid pin")
 
     activationData = getActivationData(activationCode)
-    activationData['pin'] = pin
+    activationData["pin"] = pin
     createConfig(activationData)
     setCounter(0)
     print("Setup successful!")
@@ -155,5 +153,5 @@ def main():
         print(generatePassword())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

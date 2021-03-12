@@ -323,12 +323,13 @@ def autoSetup():
 
     print("Here is your password: ", generatePassword())
 
-def main():
+def check_setup():
     if not os.path.isfile(CONFIG_PATH) or not os.path.isfile(COUNTER_PATH):
-        print("Configuration files not found! Running setup...")
         autoSetup()
-    else:
-        print(generatePassword())
+
+def main():
+    check_setup()
+    print(generatePassword())
 
 
 if __name__ == "__main__":

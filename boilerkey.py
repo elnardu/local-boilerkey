@@ -92,6 +92,12 @@ def getCounter():
     with open(COUNTER_PATH, "r") as f:
         return json.load(f)["counter"]
 
+def getUsername():
+    with open(CONFIG_PATH, "r") as f:
+        parsed = json.load(f)
+        if "username" in parsed:
+            return parsed["username"]
+        return None
 
 def generatePassword():
     config = getConfig()
@@ -317,18 +323,19 @@ def autoSetup():
 
     activationData = getActivationData(link)
     activationData["pin"] = password.split(',')[0]
+    activationData["username"] = username
     createConfig(activationData)
     setCounter(0)
     print("Setup successful!")
 
     print("Here is your password: ", generatePassword())
 
-def check_setup():
+def checkSetup():
     if not os.path.isfile(CONFIG_PATH) or not os.path.isfile(COUNTER_PATH):
         autoSetup()
 
 def main():
-    check_setup()
+    checkSetup()
     print(generatePassword())
 
 

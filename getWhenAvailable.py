@@ -10,7 +10,7 @@ def getWhenAvailable(username, password, timeStr, targetDate, interval):
         # ensure we log in by allowing 3 attempts
         for i in range(0,3):
             # log in to recwell
-            if not sesh.authWithRecwell(username, boilerkey.generatePassword()):
+            if not sesh.authWithRecwell(username, password):
                 print("Error authenticating!!!")
                 time.sleep(10)
             else:
@@ -38,6 +38,12 @@ def getWhenAvailable(username, password, timeStr, targetDate, interval):
                 if appData[timeStr].canCancel():
                     print(f"Appointment already reserved at {datetime.datetime.now()}")
                     return False
+
+                # check if another appointment already reserved for said day
+                if appData[timeStr].hasSpots() and not appData[timeStr].canReserve():
+                    print(f"You already have an appointment on this day")
+                    return False
+
                 # only move forward if spots available
                 if appData[timeStr].canReserve():
                     for i in range(0,3):
@@ -47,15 +53,17 @@ def getWhenAvailable(username, password, timeStr, targetDate, interval):
                             time.sleep(10)
                         else:
                             return True
+                else:
+                    print(f"Tried to get appointment at {datetime.datetime.now()}")
             else:
                 print("Invalid data for attempting to get appointment!")
 
             time.sleep(interval)
 
 def main():
-    USERNAME = input("Enter Purdue Username: ")
+    USERNAME = boilerkey.getUsername()
     if not USERNAME:
-        USERNAME = "jgleeson"
+        USERNAME = input("Enter Purdue Username: ")
 
     targetMonth = input("Enter target month(0-12): ")
     targetDay = input("Enter target day(0-31): ")
@@ -73,7 +81,7 @@ def main():
     INTERVAL = 30
 
     # ensure credentials are set up
-    boilerkey.check_setup()
+    boilerkey.checkSetup()
 
     # get appointment
     if getWhenAvailable(USERNAME, boilerkey.generatePassword(), TARGET_TIME, TARGET_DAY, INTERVAL):

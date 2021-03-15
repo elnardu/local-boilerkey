@@ -45,9 +45,27 @@ class CorecAppointment():
 
         :rtype: bool
         """
-        if self.spots and self.spots > 0:
+        if self.appointmentId and self.hasSpots():
             return True
         return False
+
+    def hasSpots(self):
+        """Helper to determine whether Appointment has spots available
+        returns True if spots available, else False
+
+        :rtype: bool
+        """
+        if self.spots:
+            return self.spots > 0
+        return False
+
+    def __str__(self):
+        """toString equivalen will return string representation of object
+
+        :rtype: str
+        """
+
+        return f"date={self.date}, timeStr={self.timeStr}, participantId={self.participantId}, spots={self.spots}, appointmentId={self.appointmentId}, timeSlotId={self.timeSlotId}, timeSlotInstanceId={self.timeSlotInstanceId}"
 
 class CorecSession(requests.Session):
     """A Requests session with included helpers for corec site automation

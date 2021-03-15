@@ -61,6 +61,10 @@ def getWhenAvailable(username, password, timeStr, targetDate, interval):
             time.sleep(interval)
 
 def main():
+
+    # ensure credentials are set up
+    boilerkey.checkSetup()
+
     USERNAME = boilerkey.getUsername()
     if not USERNAME:
         USERNAME = input("Enter Purdue Username: ")
@@ -80,8 +84,6 @@ def main():
 
     INTERVAL = 30
 
-    # ensure credentials are set up
-    boilerkey.checkSetup()
 
     # get appointment
     if getWhenAvailable(USERNAME, boilerkey.generatePassword(), TARGET_TIME, TARGET_DAY, INTERVAL):
